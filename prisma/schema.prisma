@@ -1,0 +1,481 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum UserRole {
+  ADMIN
+  SALES
+  WAREHOUSE
+  PRODUCTION
+  QC
+  INSTALLER
+  ACCOUNTANT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+  CONSIGNMENT // Khách ký gửi
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PRODUCTION
+  QC_PENDING
+  QC_PASSED
+  READY_DELIVERY
+  INSTALLING
+  COMPLETED
+  CANCELLED
+}
+
+enum WorkOrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum InventoryOwnership {
+  COMPANY       // Kho công ty
+  CONSIGNMENT   // Kho ký gửi khách hàng
+}
+
+enum ProductType {
+  CURTAIN        // Rèm
+  EMBROIDERY     // Gia công thêu/đệm
+  MATERIAL       // Nguyên vật liệu
+  ACCESSORY      // Phụ kiện
+}
+
+enum ItemType {
+  CURTAIN_WINDOW   // Hạng mục rèm theo cửa
+  PROCESSING_BATCH // Hạng mục gia công theo lô
+}
+
+enum QCResult {
+  PENDING
+  PASSED
+  FAILED
+  REWORK
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  passwordHash  String
+  fullName      String
+  phone         String?
+  role          UserRole    @default(SALES)
+  status        UserStatus  @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  refreshTokens RefreshToken[]
+  quotations    Quotation[]
+  orders        Order[]       @relation("OrderCreator")
+  workOrders    WorkOrder[]   @relation("WorkOrderAssignee")
+  qcRecords     QCRecord[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  tokenHash   String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  revokedAt   DateTime?
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ==================== CUSTOMER ====================
+
+model Customer {
+  id            String        @id @default(uuid())
+  code          String        @unique
+  name          String
+  type          CustomerType  @default(INDIVIDUAL)
+  email         String?
+  phone         String?
+  address       String?
+  taxCode       String?
+  contactPerson String?
+  notes         String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  quotations    Quotation[]
+  orders        Order[]
+  inventory     Inventory[]   // Kho ký gửi của khách
+
+  @@map("customers")
+}
+
+// ==================== PRODUCT & MATERIAL ====================
+
+model Product {
+  id            String        @id @default(uuid())
+  code          String        @unique
+  name          String
+  type          ProductType
+  unit          String        // m, m2, cái, bộ, lô
+  description   String?
+  basePrice     Decimal       @db.Decimal(15, 2)
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  quotationItems  QuotationItem[]
+  orderItems      OrderItem[]
+  inventory       Inventory[]
+  routingSteps    RoutingStep[]
+
+  @@map("products")
+}
+
+model Material {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  name          String
+  unit          String
+  description   String?
+  minStock      Decimal   @db.Decimal(15, 2) @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  inventory     Inventory[]
+  bomItems      BOMItem[]
+
+  @@map("materials")
+}
+
+// ==================== BOM (Bill of Materials) ====================
+
+model BOM {
+  id          String    @id @default(uuid())
+  productId   String
+  version     String    @default("1.0")
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  items       BOMItem[]
+
+  @@unique([productId, version])
+  @@map("boms")
+}
+
+model BOMItem {
+  id          String    @id @default(uuid())
+  bomId       String
+  bom         BOM       @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  materialId  String
+  material    Material  @relation(fields: [materialId], references: [id])
+  quantity    Decimal   @db.Decimal(15, 4)
+  unit        String
+  notes       String?
+
+  @@map("bom_items")
+}
+
+// ==================== ROUTING (Production Steps) ====================
+
+model RoutingStep {
+  id            String    @id @default(uuid())
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+  stepNumber    Int
+  name          String
+  description   String?
+  workCenter    String?   // Nơi thực hiện
+  estimatedTime Int?      // phút
+  isActive      Boolean   @default(true)
+
+  workOrderSteps WorkOrderStep[]
+
+  @@unique([productId, stepNumber])
+  @@map("routing_steps")
+}
+
+// ==================== QUOTATION ====================
+
+model Quotation {
+  id            String            @id @default(uuid())
+  code          String            @unique
+  customerId    String
+  customer      Customer          @relation(fields: [customerId], references: [id])
+  createdById   String
+  createdBy     User              @relation(fields: [createdById], references: [id])
+  status        QuotationStatus   @default(DRAFT)
+  validUntil    DateTime?
+  subtotal      Decimal           @db.Decimal(15, 2) @default(0)
+  discount      Decimal           @db.Decimal(15, 2) @default(0)
+  tax           Decimal           @db.Decimal(15, 2) @default(0)
+  total         Decimal           @db.Decimal(15, 2) @default(0)
+  notes         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  items         QuotationItem[]
+  order         Order?
+
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id            String      @id @default(uuid())
+  quotationId   String
+  quotation     Quotation   @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  itemType      ItemType
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  description   String?
+  
+  // Cho rèm theo cửa
+  windowName    String?     // Tên cửa (Cửa sổ phòng khách, ...)
+  width         Decimal?    @db.Decimal(10, 2)  // cm
+  height        Decimal?    @db.Decimal(10, 2)  // cm
+  
+  // Cho gia công theo lô
+  batchCode     String?
+  batchQuantity Int?
+  
+  quantity      Decimal     @db.Decimal(15, 2)
+  unit          String
+  unitPrice     Decimal     @db.Decimal(15, 2)
+  amount        Decimal     @db.Decimal(15, 2)
+  notes         String?
+
+  @@map("quotation_items")
+}
+
+// ==================== ORDER ====================
+
+model Order {
+  id            String        @id @default(uuid())
+  code          String        @unique
+  quotationId   String?       @unique
+  quotation     Quotation?    @relation(fields: [quotationId], references: [id])
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  createdById   String
+  createdBy     User          @relation("OrderCreator", fields: [createdById], references: [id])
+  status        OrderStatus   @default(PENDING)
+  orderDate     DateTime      @default(now())
+  deliveryDate  DateTime?
+  installDate   DateTime?
+  subtotal      Decimal       @db.Decimal(15, 2) @default(0)
+  discount      Decimal       @db.Decimal(15, 2) @default(0)
+  tax           Decimal       @db.Decimal(15, 2) @default(0)
+  total         Decimal       @db.Decimal(15, 2) @default(0)
+  paidAmount    Decimal       @db.Decimal(15, 2) @default(0)
+  shippingAddress String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  items         OrderItem[]
+  workOrders    WorkOrder[]
+  qcRecords     QCRecord[]
+  deliveries    Delivery[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id            String      @id @default(uuid())
+  orderId       String
+  order         Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  itemType      ItemType
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  description   String?
+  
+  // Cho rèm theo cửa
+  windowName    String?
+  width         Decimal?    @db.Decimal(10, 2)
+  height        Decimal?    @db.Decimal(10, 2)
+  
+  // Cho gia công theo lô
+  batchCode     String?
+  batchQuantity Int?
+  
+  quantity      Decimal     @db.Decimal(15, 2)
+  unit          String
+  unitPrice     Decimal     @db.Decimal(15, 2)
+  amount        Decimal     @db.Decimal(15, 2)
+  notes         String?
+
+  workOrders    WorkOrder[]
+
+  @@map("order_items")
+}
+
+// ==================== WORK ORDER (Production) ====================
+
+model WorkOrder {
+  id            String          @id @default(uuid())
+  code          String          @unique
+  orderId       String
+  order         Order           @relation(fields: [orderId], references: [id])
+  orderItemId   String
+  orderItem     OrderItem       @relation(fields: [orderItemId], references: [id])
+  assigneeId    String?
+  assignee      User?           @relation("WorkOrderAssignee", fields: [assigneeId], references: [id])
+  status        WorkOrderStatus @default(PENDING)
+  priority      Int             @default(1)
+  startDate     DateTime?
+  dueDate       DateTime?
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  steps         WorkOrderStep[]
+
+  @@map("work_orders")
+}
+
+model WorkOrderStep {
+  id              String          @id @default(uuid())
+  workOrderId     String
+  workOrder       WorkOrder       @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  routingStepId   String
+  routingStep     RoutingStep     @relation(fields: [routingStepId], references: [id])
+  stepNumber      Int
+  status          WorkOrderStatus @default(PENDING)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  notes           String?
+
+  @@unique([workOrderId, stepNumber])
+  @@map("work_order_steps")
+}
+
+// ==================== QC ====================
+
+model QCRecord {
+  id            String      @id @default(uuid())
+  code          String      @unique
+  orderId       String
+  order         Order       @relation(fields: [orderId], references: [id])
+  inspectorId   String
+  inspector     User        @relation(fields: [inspectorId], references: [id])
+  result        QCResult    @default(PENDING)
+  checkDate     DateTime    @default(now())
+  notes         String?
+  defects       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("qc_records")
+}
+
+// ==================== INVENTORY ====================
+
+model Inventory {
+  id            String              @id @default(uuid())
+  productId     String?
+  product       Product?            @relation(fields: [productId], references: [id])
+  materialId    String?
+  material      Material?           @relation(fields: [materialId], references: [id])
+  ownership     InventoryOwnership  @default(COMPANY)
+  customerId    String?             // Nếu là kho ký gửi
+  customer      Customer?           @relation(fields: [customerId], references: [id])
+  warehouse     String              @default("MAIN")
+  location      String?             // Vị trí trong kho
+  quantity      Decimal             @db.Decimal(15, 2) @default(0)
+  reservedQty   Decimal             @db.Decimal(15, 2) @default(0)
+  unit          String
+  lastUpdated   DateTime            @updatedAt
+
+  transactions  InventoryTransaction[]
+
+  @@unique([productId, materialId, ownership, customerId, warehouse])
+  @@map("inventory")
+}
+
+model InventoryTransaction {
+  id            String    @id @default(uuid())
+  inventoryId   String
+  inventory     Inventory @relation(fields: [inventoryId], references: [id])
+  type          String    // IN, OUT, ADJUST, TRANSFER, RESERVE
+  quantity      Decimal   @db.Decimal(15, 2)
+  reference     String?   // Order code, WO code, etc.
+  notes         String?
+  createdAt     DateTime  @default(now())
+
+  @@map("inventory_transactions")
+}
+
+// ==================== DELIVERY ====================
+
+model Delivery {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  orderId         String
+  order           Order     @relation(fields: [orderId], references: [id])
+  type            String    // DELIVERY, INSTALLATION
+  scheduledDate   DateTime?
+  completedDate   DateTime?
+  address         String?
+  contactPhone    String?
+  status          String    @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("deliveries")
+}
+
+// ==================== AUDIT LOG ====================
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  action      String
+  entity      String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
