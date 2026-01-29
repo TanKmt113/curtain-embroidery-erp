@@ -1,0 +1,82 @@
+import { Request, Response, NextFunction } from 'express';
+import {
+  ListQCRecordsUseCase,
+  GetQCRecordUseCase,
+  CreateQCRecordUseCase,
+  UpdateQCRecordUseCase,
+} from '../../application/use-cases/qc-record';
+
+export class QCRecordController {
+  constructor(
+    private listQCRecordsUseCase: ListQCRecordsUseCase,
+    private getQCRecordUseCase: GetQCRecordUseCase,
+    private createQCRecordUseCase: CreateQCRecordUseCase,
+    private updateQCRecordUseCase: UpdateQCRecordUseCase
+  ) {}
+
+  list = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.listQCRecordsUseCase.execute({
+        orderId: req.query.orderId as string,
+        result: req.query.result as any,
+        fromDate: req.query.fromDate as string,
+        toDate: req.query.toDate as string,
+        page: req.query.page ? parseInt(req.query.page as string, 10) : undefined,
+        pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : undefined,
+      });
+
+      res.json({
+        success: true,
+        data: result.data,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          pageSize: result.pageSize,
+          totalPages: result.totalPages,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  get = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.getQCRecordUseCase.execute(req.params.id);
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = (req as any).user.sub;
+      const result = await this.createQCRecordUseCase.execute(req.body, userId);
+
+      res.status(201).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this.updateQCRecordUseCase.execute(req.params.id, req.body);
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}

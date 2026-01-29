@@ -8,13 +8,13 @@ export class JwtTokenService implements ITokenService {
   generateAccessToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.jwt.secret, {
       expiresIn: config.jwt.expiresIn,
-    });
+    } as jwt.SignOptions);
   }
 
   generateRefreshToken(payload: TokenPayload): string {
     return jwt.sign(payload, config.jwt.refreshSecret, {
       expiresIn: config.jwt.refreshExpiresIn,
-    });
+    } as jwt.SignOptions);
   }
 
   verifyAccessToken(token: string): TokenPayload {

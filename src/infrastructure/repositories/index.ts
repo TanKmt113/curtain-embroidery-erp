@@ -1,3 +1,10 @@
 export { PrismaUserRepository } from './PrismaUserRepository';
 export { PrismaRefreshTokenRepository } from './PrismaRefreshTokenRepository';
 export { PrismaCustomerRepository } from './PrismaCustomerRepository';
+export { PrismaProductRepository } from './PrismaProductRepository';
+export { PrismaQuotationRepository } from './PrismaQuotationRepository';
+export { PrismaOrderRepository } from './PrismaOrderRepository';
+export { PrismaWorkOrderRepository } from './PrismaWorkOrderRepository';
+export { PrismaInventoryRepository } from './PrismaInventoryRepository';
+export { PrismaQCRecordRepository } from './PrismaQCRecordRepository';
+export { PrismaDeliveryRepository } from './PrismaDeliveryRepository';

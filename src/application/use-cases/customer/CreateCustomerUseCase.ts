@@ -19,7 +19,6 @@ export class CreateCustomerUseCase {
     const code = await this.customerRepository.getNextCode();
 
     const customer = await this.customerRepository.create({
-      code,
       name: dto.name,
       type: dto.type || CustomerType.INDIVIDUAL,
       email: dto.email || null,

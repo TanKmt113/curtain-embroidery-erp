@@ -1,2 +1,9 @@
 export { AuthController } from './AuthController';
 export { CustomerController } from './CustomerController';
+export { ProductController } from './ProductController';
+export { QuotationController } from './QuotationController';
+export { OrderController } from './OrderController';
+export { WorkOrderController } from './WorkOrderController';
+export { InventoryController } from './InventoryController';
+export { QCRecordController } from './QCRecordController';
+export { DeliveryController } from './DeliveryController';

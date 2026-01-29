@@ -1,2 +1,9 @@
 export { makeAuthController, makeTokenService } from './authFactory';
 export { makeCustomerController } from './customerFactory';
+export { makeProductController } from './productFactory';
+export { makeQuotationController } from './quotationFactory';
+export { makeOrderController } from './orderFactory';
+export { makeWorkOrderController } from './workOrderFactory';
+export { makeInventoryController } from './inventoryFactory';
+export { makeQCRecordController } from './qcRecordFactory';
+export { makeDeliveryController } from './deliveryFactory';

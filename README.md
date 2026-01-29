@@ -107,24 +107,330 @@ npm start
 
 Server sẽ chạy tại: http://localhost:3000
 
-## API Endpoints
+## Chi tiết chức năng từng Module
 
-### Authentication
+### 1. 🔐 Module Authentication (Xác thực)
 
+**Mô tả**: Quản lý xác thực người dùng với cơ chế JWT (JSON Web Token) bao gồm Access Token và Refresh Token.
+
+**Chức năng**:
+- **Đăng nhập (Login)**: Xác thực email/password, trả về access token (15 phút) và refresh token (7 ngày)
+- **Làm mới token (Refresh)**: Sử dụng refresh token để lấy access token mới khi hết hạn
+- **Đăng xuất (Logout)**: Vô hiệu hóa refresh token hiện tại
+- **Phân quyền**: Hỗ trợ các role ADMIN, SALES, PRODUCTION, QC, WAREHOUSE, DELIVERY
+
+**API Endpoints**:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /api/v1/auth/login | Đăng nhập |
 | POST | /api/v1/auth/refresh | Làm mới access token |
 | POST | /api/v1/auth/logout | Đăng xuất |
 
-### Customers
+---
 
+### 2. 👥 Module Customer (Khách hàng)
+
+**Mô tả**: Quản lý thông tin khách hàng với 3 loại: Cá nhân, Công ty và Ký gửi.
+
+**Chức năng**:
+- **Tạo khách hàng**: Thêm mới với thông tin cơ bản (tên, loại, email, phone, địa chỉ)
+- **Danh sách khách hàng**: Tìm kiếm, lọc theo loại, phân trang
+- **Chi tiết khách hàng**: Xem thông tin đầy đủ bao gồm lịch sử đơn hàng
+- **Cập nhật khách hàng**: Sửa đổi thông tin khách hàng
+- **Mã khách hàng tự động**: Format `KH{YYMM}{XXXX}` (VD: KH2601-0001)
+
+**Loại khách hàng**:
+| Loại | Mô tả |
+|------|-------|
+| INDIVIDUAL | Khách hàng cá nhân |
+| COMPANY | Khách hàng công ty/doanh nghiệp |
+| CONSIGNMENT | Khách hàng ký gửi (gửi vật tư để gia công) |
+
+**API Endpoints**:
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /api/v1/customers | Tạo khách hàng |
+| POST | /api/v1/customers | Tạo khách hàng mới |
 | GET | /api/v1/customers | Danh sách khách hàng |
 | GET | /api/v1/customers/:id | Chi tiết khách hàng |
 | PUT | /api/v1/customers/:id | Cập nhật khách hàng |
+
+---
+
+### 3. 📦 Module Product (Sản phẩm)
+
+**Mô tả**: Quản lý danh mục sản phẩm và dịch vụ của công ty.
+
+**Chức năng**:
+- **Tạo sản phẩm**: Thêm sản phẩm mới với giá cơ bản, đơn vị tính
+- **Danh sách sản phẩm**: Tìm kiếm, lọc theo loại, trạng thái
+- **Chi tiết sản phẩm**: Xem thông tin đầy đủ, mô tả, thông số
+- **Cập nhật sản phẩm**: Sửa thông tin, giá, trạng thái
+- **Xóa sản phẩm**: Xóa sản phẩm không còn sử dụng
+- **Mã sản phẩm tự động**: Theo loại sản phẩm (VD: REM001, GC001)
+
+**Loại sản phẩm**:
+| Loại | Mô tả |
+|------|-------|
+| CURTAIN_FABRIC | Rèm vải |
+| CURTAIN_ROMAN | Rèm roman |
+| CURTAIN_ROLLER | Rèm cuốn |
+| CURTAIN_VERTICAL | Rèm lá dọc |
+| CUSHION | Đệm/gối |
+| EMBROIDERY | Dịch vụ thêu |
+| ACCESSORY | Phụ kiện rèm |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/products | Tạo sản phẩm mới |
+| GET | /api/v1/products | Danh sách sản phẩm |
+| GET | /api/v1/products/:id | Chi tiết sản phẩm |
+| PUT | /api/v1/products/:id | Cập nhật sản phẩm |
+| DELETE | /api/v1/products/:id | Xóa sản phẩm |
+
+---
+
+### 4. 📋 Module Quotation (Báo giá)
+
+**Mô tả**: Quản lý báo giá cho khách hàng trước khi tạo đơn hàng.
+
+**Chức năng**:
+- **Tạo báo giá**: Lập báo giá với nhiều sản phẩm/dịch vụ
+- **Danh sách báo giá**: Lọc theo khách hàng, trạng thái, thời gian
+- **Chi tiết báo giá**: Xem chi tiết các hạng mục, tổng tiền
+- **Cập nhật báo giá**: Sửa đổi nội dung, giá
+- **Thay đổi trạng thái**: DRAFT → SENT → APPROVED/REJECTED/EXPIRED
+- **Chuyển đổi sang đơn hàng**: Báo giá được duyệt có thể chuyển thành đơn hàng
+
+**Trạng thái báo giá**:
+| Status | Mô tả |
+|--------|-------|
+| DRAFT | Bản nháp, đang soạn |
+| SENT | Đã gửi cho khách hàng |
+| APPROVED | Khách hàng đồng ý |
+| REJECTED | Khách hàng từ chối |
+| EXPIRED | Hết hạn hiệu lực |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/quotations | Tạo báo giá mới |
+| GET | /api/v1/quotations | Danh sách báo giá |
+| GET | /api/v1/quotations/:id | Chi tiết báo giá |
+| PUT | /api/v1/quotations/:id | Cập nhật báo giá |
+| PATCH | /api/v1/quotations/:id/status | Thay đổi trạng thái |
+
+---
+
+### 5. 🛒 Module Order (Đơn hàng)
+
+**Mô tả**: Quản lý đơn hàng với khả năng xử lý đa hạng mục (rèm theo cửa, gia công theo lô).
+
+**Chức năng**:
+- **Tạo đơn hàng**: Từ báo giá hoặc trực tiếp, với nhiều hạng mục
+- **Danh sách đơn hàng**: Lọc theo khách hàng, trạng thái, thời gian
+- **Chi tiết đơn hàng**: Xem chi tiết các hạng mục, tiến độ sản xuất
+- **Cập nhật đơn hàng**: Sửa đổi thông tin, hạng mục
+- **Quản lý trạng thái**: Theo dõi tiến độ từ đặt hàng → sản xuất → giao hàng
+- **Mã đơn hàng tự động**: Format `DH{YYMM}{XXXX}` (VD: DH2601-0001)
+
+**Trạng thái đơn hàng**:
+| Status | Mô tả |
+|--------|-------|
+| PENDING | Mới tạo, chờ xác nhận |
+| CONFIRMED | Đã xác nhận |
+| IN_PRODUCTION | Đang sản xuất |
+| READY_FOR_DELIVERY | Sẵn sàng giao hàng |
+| PARTIALLY_DELIVERED | Giao hàng một phần |
+| DELIVERED | Đã giao hàng hoàn tất |
+| COMPLETED | Hoàn thành (đã thanh toán) |
+| CANCELLED | Đã hủy |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/orders | Tạo đơn hàng mới |
+| GET | /api/v1/orders | Danh sách đơn hàng |
+| GET | /api/v1/orders/:id | Chi tiết đơn hàng |
+| PUT | /api/v1/orders/:id | Cập nhật đơn hàng |
+| PATCH | /api/v1/orders/:id/status | Thay đổi trạng thái |
+
+---
+
+### 6. 🏭 Module Work Order (Lệnh sản xuất)
+
+**Mô tả**: Quản lý lệnh sản xuất theo từng công đoạn (Routing), hỗ trợ quy trình sản xuất rèm và gia công thêu/đệm.
+
+**Chức năng**:
+- **Tạo lệnh sản xuất**: Từ đơn hàng, phân công cho bộ phận sản xuất
+- **Danh sách lệnh sản xuất**: Lọc theo đơn hàng, trạng thái, bộ phận
+- **Chi tiết lệnh sản xuất**: Xem các công đoạn, tiến độ từng bước
+- **Cập nhật tiến độ**: Cập nhật trạng thái từng công đoạn
+- **Quản lý công đoạn (Steps)**: Mỗi lệnh có nhiều bước sản xuất theo thứ tự
+- **Mã lệnh sản xuất tự động**: Format `WO{YYMM}{XXXX}`
+
+**Trạng thái lệnh sản xuất**:
+| Status | Mô tả |
+|--------|-------|
+| PENDING | Chờ sản xuất |
+| IN_PROGRESS | Đang sản xuất |
+| COMPLETED | Hoàn thành |
+| ON_HOLD | Tạm dừng |
+
+**Quy trình sản xuất mẫu**:
+```
+Rèm vải: Cắt vải → May → Lắp phụ kiện → Đóng gói
+Thêu: Nhận vải → Căng khung → Thêu → QC → Đóng gói
+Đệm: Cắt → May → Nhồi bông → QC → Đóng gói
+```
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/work-orders | Tạo lệnh sản xuất |
+| GET | /api/v1/work-orders | Danh sách lệnh sản xuất |
+| GET | /api/v1/work-orders/:id | Chi tiết lệnh sản xuất |
+| PUT | /api/v1/work-orders/:id | Cập nhật lệnh sản xuất |
+| PATCH | /api/v1/work-orders/:id/status | Thay đổi trạng thái |
+
+---
+
+### 7. ✅ Module QC Record (Kiểm tra chất lượng)
+
+**Mô tả**: Quản lý biên bản kiểm tra chất lượng sản phẩm trong quá trình sản xuất.
+
+**Chức năng**:
+- **Tạo biên bản QC**: Ghi nhận kết quả kiểm tra sản phẩm
+- **Danh sách biên bản**: Lọc theo lệnh sản xuất, kết quả, thời gian
+- **Chi tiết biên bản**: Xem thông tin kiểm tra, lỗi phát hiện
+- **Ghi nhận lỗi**: Mô tả chi tiết các lỗi nếu có
+- **Liên kết với lệnh sản xuất**: Mỗi biên bản QC gắn với một Work Order
+
+**Kết quả kiểm tra**:
+| Result | Mô tả |
+|--------|-------|
+| PASS | Đạt yêu cầu chất lượng |
+| FAIL | Không đạt, cần xử lý |
+| CONDITIONAL | Đạt có điều kiện (cần sửa nhỏ) |
+
+**Thông tin biên bản QC**:
+- Ngày kiểm tra
+- Số lượng kiểm tra
+- Số lượng đạt / không đạt
+- Mô tả lỗi (nếu có)
+- Ghi chú của QC
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/qc-records | Tạo biên bản QC |
+| GET | /api/v1/qc-records | Danh sách biên bản QC |
+| GET | /api/v1/qc-records/:id | Chi tiết biên bản QC |
+
+---
+
+### 8. 📊 Module Inventory (Kho hàng)
+
+**Mô tả**: Quản lý tồn kho với khả năng phân biệt hàng công ty và hàng ký gửi của khách.
+
+**Chức năng**:
+- **Xem tồn kho**: Danh sách tồn kho theo sản phẩm, vật tư, kho
+- **Chi tiết tồn kho**: Số lượng hiện có, đã đặt trước, khả dụng
+- **Nhập kho**: Ghi nhận nhập hàng mới (mua, sản xuất xong, nhận ký gửi)
+- **Điều chỉnh tồn kho**: Tăng/giảm do kiểm kê, hao hụt
+- **Lịch sử giao dịch**: Theo dõi mọi biến động tồn kho
+- **Phân loại theo quyền sở hữu**: Hàng công ty vs Hàng ký gửi
+
+**Loại quyền sở hữu**:
+| Ownership | Mô tả |
+|-----------|-------|
+| COMPANY | Hàng của công ty |
+| CONSIGNMENT | Hàng ký gửi của khách |
+
+**Loại giao dịch kho**:
+| Type | Mô tả |
+|------|-------|
+| IN | Nhập kho |
+| OUT | Xuất kho |
+| ADJUST | Điều chỉnh |
+| RESERVE | Đặt trước cho đơn hàng |
+| RELEASE | Giải phóng đặt trước |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/v1/inventory | Danh sách tồn kho |
+| GET | /api/v1/inventory/:id | Chi tiết tồn kho |
+| POST | /api/v1/inventory/receive | Nhập kho |
+| POST | /api/v1/inventory/adjust | Điều chỉnh tồn kho |
+
+---
+
+### 9. 🚚 Module Delivery (Giao hàng & Lắp đặt)
+
+**Mô tả**: Quản lý lịch giao hàng và lắp đặt sản phẩm cho khách hàng.
+
+**Chức năng**:
+- **Tạo lịch giao hàng**: Lên lịch giao/lắp đặt cho đơn hàng
+- **Danh sách giao hàng**: Lọc theo đơn hàng, ngày, trạng thái
+- **Chi tiết giao hàng**: Thông tin địa chỉ, liên hệ, sản phẩm
+- **Cập nhật thông tin**: Sửa đổi lịch, địa chỉ, ghi chú
+- **Quản lý trạng thái**: Theo dõi tiến độ giao hàng
+- **Mã giao hàng tự động**: `DLV{YYMM}{XXXX}` (giao hàng), `INS{YYMM}{XXXX}` (lắp đặt)
+
+**Loại giao hàng**:
+| Type | Mô tả |
+|------|-------|
+| DELIVERY | Giao hàng thông thường |
+| INSTALLATION | Lắp đặt tại nhà/công trình |
+
+**Trạng thái giao hàng**:
+| Status | Mô tả |
+|--------|-------|
+| SCHEDULED | Đã lên lịch |
+| IN_TRANSIT | Đang vận chuyển |
+| DELIVERED | Đã giao/lắp đặt xong |
+| FAILED | Giao hàng thất bại |
+| RESCHEDULED | Đã đổi lịch |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/deliveries | Tạo lịch giao hàng |
+| GET | /api/v1/deliveries | Danh sách giao hàng |
+| GET | /api/v1/deliveries/:id | Chi tiết giao hàng |
+| PUT | /api/v1/deliveries/:id | Cập nhật giao hàng |
+| PATCH | /api/v1/deliveries/:id/status | Thay đổi trạng thái |
+
+---
+
+## Swagger Documentation
+
+Truy cập **http://localhost:3000/api-docs** để xem tài liệu API đầy đủ với Swagger UI.
+
+---
+
+## Quy trình nghiệp vụ tổng quan
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  Báo giá    │───▶│  Đơn hàng   │───▶│  Sản xuất   │───▶│  Giao hàng  │
+│  Quotation  │    │   Order     │    │ Work Order  │    │  Delivery   │
+└─────────────┘    └─────────────┘    └──────┬──────┘    └─────────────┘
+                                             │
+                                             ▼
+                                      ┌─────────────┐
+                                      │  Kiểm tra   │
+                                      │  QC Record  │
+                                      └─────────────┘
+```
+
+**Luồng chính**:
+1. **Báo giá** → Tư vấn, lập báo giá cho khách hàng
+2. **Đơn hàng** → Khách duyệt báo giá, tạo đơn hàng
+3. **Sản xuất** → Tạo lệnh sản xuất, phân công công đoạn
+4. **QC** → Kiểm tra chất lượng sau mỗi công đoạn/sản phẩm
+5. **Giao hàng** → Lên lịch và thực hiện giao hàng/lắp đặt
 
 ## Tài khoản mẫu
 
