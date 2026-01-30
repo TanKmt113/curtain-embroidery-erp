@@ -8,6 +8,9 @@ export {
 
 export { CreateCustomerDTO, UpdateCustomerDTO, ListCustomersDTO } from './CustomerDTO';
 
+// User DTOs
+export * from './user.dto';
+
 // Product DTOs
 export * from './product.dto';
 

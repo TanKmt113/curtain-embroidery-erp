@@ -1,4 +1,4 @@
-export { IUserRepository } from './IUserRepository';
+export { IUserRepository, UserFilters } from './IUserRepository';
 export { IRefreshTokenRepository } from './IRefreshTokenRepository';
 export {
   ICustomerRepository,
