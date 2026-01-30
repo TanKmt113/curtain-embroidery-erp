@@ -9,3 +9,4 @@ export { WorkOrderController } from './WorkOrderController';
 export { InventoryController } from './InventoryController';
 export { QCRecordController } from './QCRecordController';
 export { DeliveryController } from './DeliveryController';
+export { UploadController } from './UploadController';

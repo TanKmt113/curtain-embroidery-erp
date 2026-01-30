@@ -9,3 +9,4 @@ export { makeWorkOrderController } from './workOrderFactory';
 export { makeInventoryController } from './inventoryFactory';
 export { makeQCRecordController } from './qcRecordFactory';
 export { makeDeliveryController } from './deliveryFactory';
+export { createUploadController } from './uploadFactory';

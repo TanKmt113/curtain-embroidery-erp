@@ -18,7 +18,7 @@ export class UpdateProductUseCase {
       unit: dto.unit,
       basePrice: dto.basePrice !== undefined ? (dto.basePrice as any) : undefined,
       description: dto.description,
-      specifications: dto.specifications,
+      image: dto.image,
       isActive: dto.isActive,
     });
 
@@ -30,7 +30,7 @@ export class UpdateProductUseCase {
       unit: product.unit,
       basePrice: Number(product.basePrice),
       description: product.description || undefined,
-      specifications: product.specifications as Record<string, any> | undefined,
+      image: product.image || undefined,
       isActive: product.isActive,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,

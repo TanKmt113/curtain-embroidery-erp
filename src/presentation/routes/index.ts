@@ -10,6 +10,7 @@ import { createWorkOrderRoutes } from './workOrderRoutes';
 import { createInventoryRoutes } from './inventoryRoutes';
 import { createQCRecordRoutes } from './qcRecordRoutes';
 import { createDeliveryRoutes } from './deliveryRoutes';
+import { createUploadRoutes } from './uploadRoutes';
 import { 
   AuthController, 
   CustomerController,
@@ -21,7 +22,8 @@ import {
   WorkOrderController,
   InventoryController,
   QCRecordController,
-  DeliveryController
+  DeliveryController,
+  UploadController
 } from '../controllers';
 import { ITokenService } from '../../application/interfaces';
 
@@ -37,6 +39,7 @@ export interface ApiRouterControllers {
   inventoryController: InventoryController;
   qcRecordController: QCRecordController;
   deliveryController: DeliveryController;
+  uploadController: UploadController;
 }
 
 export function createApiRouter(
@@ -78,6 +81,9 @@ export function createApiRouter(
   // Delivery routes
   router.use('/deliveries', createDeliveryRoutes(controllers.deliveryController, tokenService));
 
+  // Upload routes
+  router.use('/upload', createUploadRoutes(controllers.uploadController, tokenService));
+
   // Health check endpoint
   router.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -97,3 +103,4 @@ export { createWorkOrderRoutes } from './workOrderRoutes';
 export { createInventoryRoutes } from './inventoryRoutes';
 export { createQCRecordRoutes } from './qcRecordRoutes';
 export { createDeliveryRoutes } from './deliveryRoutes';
+export { createUploadRoutes } from './uploadRoutes';

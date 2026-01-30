@@ -38,7 +38,7 @@ export class ListProductsUseCase {
       unit: product.unit,
       basePrice: Number(product.basePrice),
       description: product.description || undefined,
-      specifications: product.specifications as Record<string, any> | undefined,
+      image: product.image || undefined,
       isActive: product.isActive,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
@@ -64,7 +64,7 @@ export class GetProductUseCase {
       unit: product.unit,
       basePrice: Number(product.basePrice),
       description: product.description || undefined,
-      specifications: product.specifications as Record<string, any> | undefined,
+      image: product.image || undefined,
       isActive: product.isActive,
       materials: product.materials?.map((m) => ({
         id: m.id,
