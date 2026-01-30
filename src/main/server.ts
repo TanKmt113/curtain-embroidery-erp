@@ -13,6 +13,8 @@ import {
   makeAuthController,
   makeTokenService,
   makeCustomerController,
+  makeUserController,
+  makeRoleController,
   makeProductController,
   makeQuotationController,
   makeOrderController,
@@ -45,6 +47,8 @@ async function createApp(): Promise<Express> {
   // Create controllers
   const authController = makeAuthController();
   const customerController = makeCustomerController();
+  const userController = makeUserController();
+  const roleController = makeRoleController();
   const productController = makeProductController(prisma);
   const quotationController = makeQuotationController(prisma);
   const orderController = makeOrderController(prisma);
@@ -59,6 +63,8 @@ async function createApp(): Promise<Express> {
     {
       authController,
       customerController,
+      userController,
+      roleController,
       productController,
       quotationController,
       orderController,

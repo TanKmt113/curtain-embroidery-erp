@@ -1,5 +1,7 @@
 export { makeAuthController, makeTokenService } from './authFactory';
 export { makeCustomerController } from './customerFactory';
+export { makeUserController } from './userFactory';
+export { makeRoleController } from './roleFactory';
 export { makeProductController } from './productFactory';
 export { makeQuotationController } from './quotationFactory';
 export { makeOrderController } from './orderFactory';

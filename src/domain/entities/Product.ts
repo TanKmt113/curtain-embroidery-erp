@@ -7,7 +7,7 @@ export interface Product {
   type: ProductType;
   unit: string;
   description?: string | null;
-  specifications?: string | Record<string, any> | null;
+  image?: string | null;
   basePrice: number | Decimal;
   isActive: boolean;
   createdAt: Date;

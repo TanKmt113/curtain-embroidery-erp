@@ -7,7 +7,7 @@ export interface CreateProductDto {
   unit: string;
   basePrice: number;
   description?: string;
-  specifications?: Record<string, any>;
+  image?: string;
   materials?: CreateProductMaterialDto[];
   routingSteps?: CreateRoutingStepDto[];
 }
@@ -17,7 +17,7 @@ export interface UpdateProductDto {
   unit?: string;
   basePrice?: number;
   description?: string;
-  specifications?: Record<string, any>;
+  image?: string;
   isActive?: boolean;
 }
 
@@ -29,7 +29,7 @@ export interface ProductResponseDto {
   unit: string;
   basePrice: number;
   description?: string;
-  specifications?: Record<string, any>;
+  image?: string;
   isActive: boolean;
   materials?: ProductMaterialResponseDto[];
   routingSteps?: RoutingStepResponseDto[];

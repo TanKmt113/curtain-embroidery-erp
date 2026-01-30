@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { createAuthRouter } from './authRoutes';
 import { createCustomerRouter } from './customerRoutes';
+import { createUserRoutes } from './userRoutes';
+import { createRoleRoutes } from './roleRoutes';
 import { createProductRoutes } from './productRoutes';
 import { createQuotationRoutes } from './quotationRoutes';
 import { createOrderRoutes } from './orderRoutes';
@@ -11,6 +13,8 @@ import { createDeliveryRoutes } from './deliveryRoutes';
 import { 
   AuthController, 
   CustomerController,
+  UserController,
+  RoleController,
   ProductController,
   QuotationController,
   OrderController,
@@ -24,6 +28,8 @@ import { ITokenService } from '../../application/interfaces';
 export interface ApiRouterControllers {
   authController: AuthController;
   customerController: CustomerController;
+  userController: UserController;
+  roleController: RoleController;
   productController: ProductController;
   quotationController: QuotationController;
   orderController: OrderController;
@@ -41,6 +47,12 @@ export function createApiRouter(
 
   // Auth routes (public)
   router.use('/auth', createAuthRouter(controllers.authController, tokenService));
+  
+  // User routes
+  router.use('/users', createUserRoutes(controllers.userController, tokenService));
+  
+  // Role routes
+  router.use('/roles', createRoleRoutes(controllers.roleController, tokenService));
   
   // Customer routes
   router.use('/customers', createCustomerRouter(controllers.customerController, tokenService));
@@ -76,6 +88,8 @@ export function createApiRouter(
 
 export { createAuthRouter } from './authRoutes';
 export { createCustomerRouter } from './customerRoutes';
+export { createUserRoutes } from './userRoutes';
+export { createRoleRoutes } from './roleRoutes';
 export { createProductRoutes } from './productRoutes';
 export { createQuotationRoutes } from './quotationRoutes';
 export { createOrderRoutes } from './orderRoutes';

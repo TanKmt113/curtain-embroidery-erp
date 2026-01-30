@@ -28,7 +28,7 @@ export class CreateProductUseCase {
       unit: dto.unit,
       basePrice: dto.basePrice as any, // Prisma Decimal
       description: dto.description || null,
-      specifications: dto.specifications || null,
+      image: dto.image || null,
       isActive: true,
     });
 
@@ -40,7 +40,7 @@ export class CreateProductUseCase {
       unit: product.unit,
       basePrice: Number(product.basePrice),
       description: product.description || undefined,
-      specifications: product.specifications as Record<string, any> | undefined,
+      image: product.image || undefined,
       isActive: product.isActive,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,

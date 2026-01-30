@@ -87,7 +87,16 @@ export class PrismaProductRepository implements IProductRepository {
   }
 
   async getNextCode(type: ProductType): Promise<string> {
-    const prefix = type === ProductType.CURTAIN ? 'CUR' : type === ProductType.EMBROIDERY ? 'EMB' : type === ProductType.MATERIAL ? 'MAT' : 'ACC';
+    const prefixMap: Record<ProductType, string> = {
+      [ProductType.CURTAIN]: 'CUR',
+      [ProductType.EMBROIDERY]: 'EMB',
+      [ProductType.MATERIAL]: 'MAT',
+      [ProductType.ACCESSORY]: 'ACC',
+      [ProductType.CUSHION]: 'CUS',
+      [ProductType.SERVICE]: 'SVC',
+    };
+    
+    const prefix = prefixMap[type] || 'PRD';
 
     const lastProduct = await this.prisma.product.findFirst({
       where: { code: { startsWith: prefix } },

@@ -1,5 +1,7 @@
 export { AuthController } from './AuthController';
 export { CustomerController } from './CustomerController';
+export { UserController } from './UserController';
+export { RoleController } from './RoleController';
 export { ProductController } from './ProductController';
 export { QuotationController } from './QuotationController';
 export { OrderController } from './OrderController';

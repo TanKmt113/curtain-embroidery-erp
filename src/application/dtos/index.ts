@@ -11,6 +11,9 @@ export { CreateCustomerDTO, UpdateCustomerDTO, ListCustomersDTO } from './Custom
 // User DTOs
 export * from './user.dto';
 
+// Role DTOs
+export * from './role.dto';
+
 // Product DTOs
 export * from './product.dto';
 
