@@ -200,7 +200,7 @@ Server sẽ chạy tại: http://localhost:3000
 
 ---
 
-### 3. 📦 Module Product (Sản phẩm)
+### 4. 📦 Module Product (Sản phẩm)
 
 **Mô tả**: Quản lý danh mục sản phẩm và dịch vụ của công ty.
 
@@ -234,7 +234,7 @@ Server sẽ chạy tại: http://localhost:3000
 
 ---
 
-### 4. 📋 Module Quotation (Báo giá)
+### 5. 📋 Module Quotation (Báo giá)
 
 **Mô tả**: Quản lý báo giá cho khách hàng trước khi tạo đơn hàng.
 
@@ -266,7 +266,7 @@ Server sẽ chạy tại: http://localhost:3000
 
 ---
 
-### 5. 🛒 Module Order (Đơn hàng)
+### 6. 🛒 Module Order (Đơn hàng)
 
 **Mô tả**: Quản lý đơn hàng với khả năng xử lý đa hạng mục (rèm theo cửa, gia công theo lô).
 
@@ -301,7 +301,7 @@ Server sẽ chạy tại: http://localhost:3000
 
 ---
 
-### 6. 🏭 Module Work Order (Lệnh sản xuất)
+### 7. 🏭 Module Work Order (Lệnh sản xuất)
 
 **Mô tả**: Quản lý lệnh sản xuất theo từng công đoạn (Routing), hỗ trợ quy trình sản xuất rèm và gia công thêu/đệm.
 
@@ -339,7 +339,7 @@ Thêu: Nhận vải → Căng khung → Thêu → QC → Đóng gói
 
 ---
 
-### 7. ✅ Module QC Record (Kiểm tra chất lượng)
+### 8. ✅ Module QC Record (Kiểm tra chất lượng)
 
 **Mô tả**: Quản lý biên bản kiểm tra chất lượng sản phẩm trong quá trình sản xuất.
 
@@ -373,7 +373,7 @@ Thêu: Nhận vải → Căng khung → Thêu → QC → Đóng gói
 
 ---
 
-### 8. 📊 Module Inventory (Kho hàng)
+### 9. 📊 Module Inventory (Kho hàng)
 
 **Mô tả**: Quản lý tồn kho với khả năng phân biệt hàng công ty và hàng ký gửi của khách.
 
@@ -410,7 +410,7 @@ Thêu: Nhận vải → Căng khung → Thêu → QC → Đóng gói
 
 ---
 
-### 9. 🚚 Module Delivery (Giao hàng & Lắp đặt)
+### 10. 🚚 Module Delivery (Giao hàng & Lắp đặt)
 
 **Mô tả**: Quản lý lịch giao hàng và lắp đặt sản phẩm cho khách hàng.
 
