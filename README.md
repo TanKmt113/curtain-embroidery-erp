@@ -128,7 +128,51 @@ Server sẽ chạy tại: http://localhost:3000
 
 ---
 
-### 2. 👥 Module Customer (Khách hàng)
+### 2. � Module User (Người dùng)
+
+**Mô tả**: Quản lý người dùng hệ thống (nhân viên) với phân quyền theo vai trò.
+
+**Chức năng**:
+- **Tạo người dùng**: Thêm user mới với email, mật khẩu, vai trò
+- **Danh sách người dùng**: Tìm kiếm theo tên/email, lọc theo role và status, phân trang
+- **Chi tiết người dùng**: Xem thông tin đầy đủ của user
+- **Cập nhật người dùng**: Sửa thông tin, thay đổi vai trò, trạng thái
+- **Xóa người dùng**: Xóa user (không thể tự xóa chính mình)
+- **Đổi mật khẩu**: User tự đổi mật khẩu (cần nhập mật khẩu hiện tại)
+- **Reset mật khẩu**: Admin reset mật khẩu cho user khác
+
+**Vai trò người dùng (Role)**:
+| Role | Mô tả |
+|------|-------|
+| ADMIN | Quản trị viên - toàn quyền |
+| SALES | Nhân viên kinh doanh |
+| PRODUCTION | Nhân viên sản xuất |
+| QC | Nhân viên kiểm tra chất lượng |
+| WAREHOUSE | Nhân viên kho |
+| INSTALLER | Nhân viên lắp đặt |
+| ACCOUNTANT | Kế toán |
+
+**Trạng thái người dùng (Status)**:
+| Status | Mô tả |
+|--------|-------|
+| ACTIVE | Đang hoạt động |
+| INACTIVE | Không hoạt động |
+| SUSPENDED | Bị tạm khóa |
+
+**API Endpoints**:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/v1/users | Tạo người dùng mới |
+| GET | /api/v1/users | Danh sách người dùng |
+| GET | /api/v1/users/:id | Chi tiết người dùng |
+| PUT | /api/v1/users/:id | Cập nhật người dùng |
+| DELETE | /api/v1/users/:id | Xóa người dùng |
+| POST | /api/v1/users/:id/change-password | Đổi mật khẩu (user) |
+| POST | /api/v1/users/:id/reset-password | Reset mật khẩu (admin) |
+
+---
+
+### 3. �👥 Module Customer (Khách hàng)
 
 **Mô tả**: Quản lý thông tin khách hàng với 3 loại: Cá nhân, Công ty và Ký gửi.
 
