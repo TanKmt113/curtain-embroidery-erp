@@ -19,6 +19,8 @@ export const CreateOrderSchema = z.object({
   customerId: z.string().uuid(),
   quotationId: z.string().uuid().optional(),
   deliveryDate: z.string().datetime().optional(),
+  // Keep backward-compat with older clients, but canonical field is shippingAddress
+  shippingAddress: z.string().optional(),
   deliveryAddress: z.string().optional(),
   notes: z.string().optional(),
   items: z.array(OrderItemSchema).min(1, 'At least one item is required'),
